@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Victor;
 
+// Needed for Camera
+import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.IterativeRobot;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -38,12 +41,17 @@ public class Robot extends TimedRobot {
 	private Joystick gamePad;	
 	Spark m_leftFront, m_leftRear, m_rightFront, m_rightRear, winchMotor, intakeLeft, intakeRight;
   SpeedControllerGroup spool, m_left, m_right;
-  Victor spoolLeft, spoolRight;
+  Victor spoolLeft, spoolRight, intake;
   // Constants for button mapping
-  int intakeRaise = 1;
-	int intakeLower = 2;
-	int winchForward = 3;
-	int winchReverse = 4;
+  int winchUp = 1;
+  int winchDown = 2;
+  int pistonBack = 5;
+  int pistonOut = 6;
+
+  double WINCHFACTOR = 0.5;
+  double PISTONFACTOR = 0.75;
+  double DRIVEFACTOR = 0.9;
+  
 
   /**
    * This function is run when the robot is first started up and should be
@@ -54,6 +62,7 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    CameraServer.getInstance().startAutomaticCapture();
 
     		// Set up Xbox controller
 		gamePad = new Joystick(0);
@@ -70,7 +79,10 @@ public class Robot extends TimedRobot {
 		
 		// Create motor objects for spool
 		spoolLeft = new Victor(5);
-		spoolRight = new Victor(6);		
+    spoolRight = new Victor(6);
+    
+    //Create motor object for intake
+    intake = new Victor(7);
 		
     // Groups motors
     //From 2018 code
@@ -112,7 +124,7 @@ public class Robot extends TimedRobot {
     System.out.println("Auto selected: " + m_autoSelected);
 
     //From 2018 code
-    Timer timer ;
+   /*Timer timer ;
 			m_left = new SpeedControllerGroup(m_leftFront,m_leftRear);
 			m_right = new SpeedControllerGroup(m_rightFront,m_rightRear);
 			spool = new SpeedControllerGroup(intakeLeft,intakeRight);
@@ -131,7 +143,8 @@ public class Robot extends TimedRobot {
 			m_right.set(0.0);
 			winchMotor.set(1.0);
 			Timer.delay(2.0);
-			winchMotor.set(0.0);
+      winchMotor.set(0.0);
+      */
   }
 
   /**
@@ -155,16 +168,23 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    m_myRobot.arcadeDrive(gamePad.getY(), gamePad.getX());
+    m_myRobot.arcadeDrive(gamePad.getY()*DRIVEFACTOR, gamePad.getX()*DRIVEFACTOR);
 		
-		if (gamePad.getRawButton(intakeRaise)) {
-			spool.set(1.0);
+		if (gamePad.getRawButton(winchUp)) {
+			spool.set(1.0 * WINCHFACTOR);
 		} 
-		else if (gamePad.getRawButton(intakeLower)) {
-			spool.set(-1.0);
-		}
+		else if (gamePad.getRawButton(winchDown)) {
+			spool.set(-1.0 * WINCHFACTOR);
+    }
+    else if (gamePad.getRawButton(pistonOut)) {
+      intake.set(1.0 * PISTONFACTOR);
+    }
+    else if (gamePad.getRawButton(pistonBack)) {
+      intake.set(-1.0 * PISTONFACTOR);
+    }
 		else {
-			spool.set(0.0);
+      spool.set(0.0);
+      intake.set(0.0);
 		}		
   }
 

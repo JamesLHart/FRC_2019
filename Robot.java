@@ -21,8 +21,8 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Victor;
 
 // Needed for Camera
-import edu.wpi.first.wpilibj.CameraServer;
-import edu.wpi.first.wpilibj.IterativeRobot;
+edu.wpi.first.cameraserver.CameraServer;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -38,8 +38,8 @@ public class Robot extends TimedRobot {
 
   // From 2018 code
   private DifferentialDrive m_myRobot;
-	private Joystick gamePad;	
-	Spark m_leftFront, m_leftRear, m_rightFront, m_rightRear, winchMotor, intakeLeft, intakeRight;
+  private Joystick gamePad;	
+  Spark m_leftFront, m_leftRear, m_rightFront, m_rightRear, winchMotor, intakeLeft, intakeRight;
   SpeedControllerGroup spool, m_left, m_right;
   Victor spoolLeft, spoolRight, intake;
   // Constants for button mapping
@@ -62,7 +62,8 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    CameraServer.getInstance().startAutomaticCapture();
+    CameraServer.getInstance().startAutomaticCapture("USB Camera 0", 0);
+    CameraServer.getInstance().startAutomaticCapture("USB Camera 1", 1);
 
     		// Set up Xbox controller
 		gamePad = new Joystick(0);
